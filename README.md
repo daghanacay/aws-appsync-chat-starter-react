@@ -1,4 +1,49 @@
-# Step 1 
+# ChatQLv2: An AWS AppSync Chat Starter App written in React
+
+This is a fork from https://github.com/aws-samples/aws-appsync-chat-starter-react
+
+## Quicklinks
+
+- re:Invent 2018 [Session](https://www.youtube.com/watch?v=0H5F0PI2-SU)/[Slides](https://www.slideshare.net/AmazonWebServices/bridging-the-gap-between-real-timeoffline-and-aiml-capabilities-in-modern-serverless-apps-mob310-aws-reinvent-2018)
+- [Introduction](#introduction)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Step#1] (#Step 1 Create backend)
+
+## Introduction
+
+This is a Starter React Progressive Web Application (PWA) that uses AWS AppSync to implement offline and real-time capabilities in a chat application with AI/ML features such as image recognition, text-to-speech, language translation, sentiment analysis as well as conversational chatbots developed as part of the re:Invent session [Bridging the Gap Between Real Time/Offline and AI/ML Capabilities in Modern Serverless Apps](https://www.youtube.com/watch?v=0H5F0PI2-SU). In the chat app, users can search for users and messages, have conversations with other users, upload images and exchange messages. The application demonstrates GraphQL Mutations, Queries and Subscriptions with AWS AppSync integrating with other AWS Services:
+
+![ChatQL Overview](/media/ChatQLv2.png)
+
+- Amazon Cognito for user management as well as AuthN/Z
+- Amazon DynamoDB with 4x NoSQL Data Sources (Users, Messages, Conversations, ConvoLink)
+- Amazon Elasticsearch Data Source for full text search on messages and users
+- AWS Lambda as a Serverless Data Source connecting to AI Services
+- Amazon Comprehend for sentiment and entity analysis as well as language detection
+- Amazon Rekognition for object, scene and celebrity detection on images
+- Amazon Lex for conversational chatbots
+- Amazon Polly for text-to-speech on messages
+- Amazon Translate for language translation
+- Amazon S3 for Media Storage
+
+You can use this for learning purposes or adapt either the application or the GraphQL Schema to meet your needs.
+
+## Getting Started
+
+### Prerequisites
+
+- [AWS Account](https://aws.amazon.com/mobile/details) with appropriate permissions to create the related resources
+- [NodeJS](https://nodejs.org/en/download/) with [NPM](https://docs.npmjs.com/getting-started/installing-node)
+- [AWS CLI](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) with output configured as JSON `(pip install awscli --upgrade --user)`
+- [AWS Amplify CLI](https://github.com/aws-amplify/amplify-cli) configured for a region where [AWS AppSync](https://docs.aws.amazon.com/general/latest/gr/rande.html) and all other services in use are available `(npm install -g @aws-amplify/cli)`
+- [AWS SAM CLI](https://github.com/awslabs/aws-sam-cli) `(pip install --user aws-sam-cli)`
+- [Create React App](https://github.com/facebook/create-react-app) `(npm install -g create-react-app)`
+- [Install JQ](https://stedolan.github.io/jq/)
+- If using Windows, you'll need the [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+
+
+# Step 1 Create backend
 
 - create a folder called chatapp-workshop and go inside the folder
 
@@ -90,5 +135,31 @@ Do you want to use the default authentication and security configuration? -> Yes
    - S3
    - IAM roles
    - Cognito
+
+Meanwhile, check your loca folders. You need to have 
+
+.
+├── amplify
+│   ├── backend
+│   │   ├── amplify-meta.json
+│   │   ├── api
+│   │   │   └── chatappApi
+│   │   ├── auth
+│   │   │   └── cognitoe60ac89f
+│   │   ├── awscloudformation
+│   │   │   └── nested-cloudformation-stack.yml
+│   │   └── storage
+│   │       └── chatappContent
+│   └── #current-cloud-backend
+├── backend
+│   └── schema.graphql
+└── src
+    ├── aws-exports.js
+    └── graphql
+        ├── mutations.js
+        ├── queries.js
+        ├── schema.json
+        └── subscriptions.js
+
 
    Spend some time to reconsile the above resources with `src/aws-exports.js` also check the resolvers that are generated for you in AppSync. Also check the `src/graphql` folder in your local to see the client side libraries for graphql we will use in the next step. Pay attention to query, mutation, model, and subscription entries.
