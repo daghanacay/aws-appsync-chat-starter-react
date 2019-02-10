@@ -44,13 +44,7 @@ You can use this for learning purposes or adapt either the application or the Gr
 
 # Step 1 Create backend
 
-- create a folder called chatapp-workshop and go inside the folder
-
-   ```
-   mkdir chatapp-workshop   
-   cd chatapp-workshop   
-   ```
-
+- Before you start you set up AWS cli to us-east-1
 - Init the directory as an amplify **Javascript** app using the **React** framework:
 
    ```bash
@@ -58,16 +52,18 @@ You can use this for learning purposes or adapt either the application or the Gr
    ```
 
 here are the selected options in the order the cli asked
-Choose your default editor? -> Visal Studio Code (or your own editor from the list)
-Choose the type of app that you're building? -> javascript
-What javascript framework are you using? -> react
-Source Directory Path? -> leave default press enter
-Distribution Directory Path: -> leave default press enter
-Build Command: -> leave default press enter
-Start Command: -> leave default press enter
 
-Do you want to use an AWS profile? -> yes
-Please choose the profile you want to use -> default
+Enter name of project -> chatbot  
+Choose your default editor? -> Visal Studio Code (or your own editor from the list)  
+Choose the type of app that you're building? -> javascript  
+What javascript framework are you using? -> react  
+Source Directory Path? -> leave default press enter  
+Distribution Directory Path: -> leave default press enter  
+Build Command: -> leave default press enter  
+Start Command: -> leave default press enter  
+
+Do you want to use an AWS profile? -> yes  
+Please choose the profile you want to use -> default  
 
 Wait until the project initializes. It takes 1 to 3 minutes
 
@@ -78,7 +74,7 @@ Wait until the project initializes. It takes 1 to 3 minutes
    echo $AWS_REGION
    ```
 
-   Make sure [**ALL**](https://docs.aws.amazon.com/general/latest/gr/rande.html) services are supported in this region or else you'll get errors in the next steps.
+WARNING if echo result is not us-east-1 please set up your default profile to us-east-1 or use one that is pointing to us-east-1 and repeat the process above. Otherwise, you'll get errors in the next steps.
 
 - Add an **Amazon Cognito User Pool** auth resource. Use the default configuration.
 
@@ -93,11 +89,11 @@ Do you want to use the default authentication and security configuration? -> Yes
    amplify add api
    ```
 
-   Please select from one of the below mentioned services -> GraphQL
-   Provide API name: -> chatappApi
-   Choose an authorization type for the API -> Amazon Cognito User Pool
-   Do you have an annotated GraphQL schema? -> Y
-   Provide your schema file path: -> backend/schema.graphql
+   Please select from one of the below mentioned services -> GraphQL  
+   Provide API name: -> chatappApi  
+   Choose an authorization type for the API -> Amazon Cognito User Pool  
+   Do you have an annotated GraphQL schema? -> Y  
+   Provide your schema file path: -> backend/schema.graphql  
 
 - Add S3 Private Storage for **Content** to the project with the default options. Select private **read/write** access for **Auth users only**:
 
@@ -105,11 +101,11 @@ Do you want to use the default authentication and security configuration? -> Yes
    amplify add storage
    ```
 
-   Please select from one of the below mentioned services -> Content (Images, audio, video, etc.)
-   Please provide a friendly name for your resource that will be used to label this category in the project: -> chatappContent
-   Please provide bucket name: -> select default press enter
-   Who should have access: -> Auth users only
-   What kind of access do you want for Authenticated users -> read/write
+   Please select from one of the below mentioned services -> Content (Images, audio, video, etc.)  
+   Please provide a friendly name for your resource that will be used to label this category in the project: -> chatappContent  
+   Please provide bucket name: -> select default press enter  
+   Who should have access: -> Auth users only  
+   What kind of access do you want for Authenticated users -> read/write  
   
 
 - Now it's time to provision your cloud resources based on the local setup and configured features. When asked to generate code, answer **"YES"**. We will overwrite the src later. Important that you choose **javascript** as source language.
@@ -118,14 +114,14 @@ Do you want to use the default authentication and security configuration? -> Yes
    amplify push
    ```
 
-   Are you sure you want to continue? -> Yes
-   Do you want to generate code for your newly created GraphQL API (Y/n) -> yes
-   Choose the code generation language target -> javascript
-   Enter the file name pattern of graphql queries, mutations and subscriptions -> select default press enter
-   Do you want to generate/update all possible GraphQL operations - queries, mutations and subscriptions -> y
+   Are you sure you want to continue? -> Yes  
+   Do you want to generate code for your newly created GraphQL API (Y/n) -> yes  
+   Choose the code generation language target -> javascript  
+   Enter the file name pattern of graphql queries, mutations and subscriptions -> select default press enter  
+   Do you want to generate/update all possible GraphQL operations - queries, mutations and subscriptions -> y  
 
 
-   Wait for the provisioning to complete, this will take 3 to 5 mins. Once done, a `src/aws-exports.js` file with the resources information is created. Also go and see the following service in your AWS console 
+   Wait for the provisioning to complete, this will take 3 to 5 mins. Once done, a `src/aws-exports.js` file is created with the resources information. Also, go and see the following service in your AWS console 
 
    - Cloud formation
    - AppSync
