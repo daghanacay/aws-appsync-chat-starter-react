@@ -8,7 +8,6 @@ This is a fork from https://github.com/aws-samples/aws-appsync-chat-starter-reac
 - [Introduction](#introduction)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
-  - [Step#1] (#Step 1 Create backend)
 
 ## Introduction
 
@@ -138,6 +137,7 @@ Do you want to use the default authentication and security configuration? -> Yes
 
 Meanwhile, check your loca folders. You need to have 
 
+```
 .
 ├── amplify
 │   ├── backend
@@ -160,6 +160,6 @@ Meanwhile, check your loca folders. You need to have
         ├── queries.js
         ├── schema.json
         └── subscriptions.js
-
+```
 
    Spend some time to reconsile the above resources with `src/aws-exports.js` also check the resolvers that are generated for you in AppSync. Also check the `src/graphql` folder in your local to see the client side libraries for graphql we will use in the next step. Pay attention to query, mutation, model, and subscription entries.
