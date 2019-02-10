@@ -72,13 +72,14 @@ _The chatbots retrieve information online via API calls from Lambda to [The Movi
 
 ## Building, Deploying and Publishing with the Amplify CLI
 
-1. Execute `amplify add hosting` from the project's root folder and follow the prompts to create an S3 bucket (DEV) and/or a CloudFront distribution (PROD).
+1. Execute `amplify add hosting` from the project's root folder and follow the prompts to create an S3 bucket (DEV) and/or a CloudFront distribution (PROD). WARNING you have to choose PROD-cloudfront option to use PWA functionality on the phone.
 
 2. Build, deploy, upload and publish the application with a single command:
 
    ```bash
    amplify publish
    ```
+This will take 5 to 10 minutes depending on the selection you made. 
 
 3. If you are deploying a CloudFront distribution, be mindful it needs to be replicated across all points of presence globally and it might take up to 15 minutes to do so.
 
@@ -90,20 +91,5 @@ _The chatbots retrieve information online via API calls from Lambda to [The Movi
 To clean up the project, you can simply delete the bots, delete the stack created by the SAM CLI:
 
 ```bash
-aws lex-models delete-bot --name `jq -r .name backend/ChuckBot/bot.json` --region $AWS_REGION
-aws lex-models delete-bot --name `jq -r .name backend/MovieBot/bot.json` --region $AWS_REGION
-aws lex-models delete-intent --name `jq -r .name backend/ChuckBot/intent.json` --region $AWS_REGION
-aws lex-models delete-intent --name `jq -r .name backend/MovieBot/intent.json` --region $AWS_REGION
-aws lex-models delete-slot-type --name `jq -r .name backend/ChuckBot/slot-type.json` --region $AWS_REGION
-aws lex-models delete-slot-type --name `jq -r .name backend/MovieBot/slot-type.json` --region $AWS_REGION
-
-aws cloudformation delete-stack --stack-name $STACK_NAME_AIML --region $AWS_REGION
+. deleteAll.sh
 ```
-
-and use:
-
-```bash
-amplify delete
-```
-
-to delete the resources created by the Amplify CLI.
