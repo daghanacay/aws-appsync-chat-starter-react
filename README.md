@@ -4,47 +4,47 @@ At this point you have an usable serverless chat application with no AI features
 
 # Step 3 - AI and chatbots
 
-- Give the bash script execution and run it
+- Give execute the bash script (make it executable if necessary `chmod +x bashScript.sh`)
 
 
-   ```bash
-   chmod +x bashScript.sh
-   . bashScript.sh
-   ```
+```bash
+    . bashScript.sh
+```
 
 This script will 
 - Look up the S3 bucket name created for user storage
 - Retrieve the API ID of your AppSync GraphQL endpoint
-- Retrieve the project's deployment bucket and stackname . It will be used for packaging and deployment with SAM
+- Retrieve the project's deployment bucket and stackname; it will be used for packaging and deployment with SAM
 - Set the region we are deploying resources to
 
 Now we need to deploy 3 Lambda functions (one for AppSync and two for Lex) and configure the AppSync Resolvers to use Lambda accordingly. First, we install the npm dependencies for each lambda function. We then package and deploy the changes with SAM.
 
-    ```bash
-    cd ./backend/chuckbot-lambda; npm install; cd ../..
-    cd ./backend/moviebot-lambda; npm install; cd ../..
-    sam package --template-file ./backend/deploy.yaml --s3-bucket $DEPLOYMENT_BUCKET_NAME --output-template-file packaged.yaml
-    export STACK_NAME_AIML="$STACK_NAME-extra-aiml"
-    sam deploy --template-file ./packaged.yaml --stack-name $STACK_NAME_AIML --capabilities CAPABILITY_IAM --parameter-overrides appSyncAPI=$GRAPHQL_API_ID s3Bucket=$USER_FILES_BUCKET --region $AWS_REGION
-    ```
+```bash
+  cd ./backend/chuckbot-lambda; npm install; cd ../..
+  cd ./backend/moviebot-lambda; npm install; cd ../..
+  sam package --template-file ./backend/deploy.yaml --s3-bucket $DEPLOYMENT_BUCKET_NAME --output-template-file packaged.yaml
+  export STACK_NAME_AIML="$STACK_NAME-extra-aiml"
+  sam deploy --template-file ./packaged.yaml --stack-name $STACK_NAME_AIML --capabilities CAPABILITY_IAM --parameter-overrides appSyncAPI=$GRAPHQL_API_ID s3Bucket=$USER_FILES_BUCKET --region $AWS_REGION
+```
 
-    Wait for the stack to finish deploying. At this point login to your console and go to Lambda. See two lambda functions are installed for you.
+Wait for the stack to finish deploying. At this point login to your console and go to Lambda. See two lambda functions are installed for you.
     
-    Now run the next script to  
-     - retrieve the functions' ARN.
-     - add permissions so Lex can invoke the chatbot related functions
-     - update the bots intents with the Lambda ARN
-     - And, deploy the slot types, intents and bots
+Now run the next script to  
+- retrieve the functions' ARN.
+- add permissions so Lex can invoke the chatbot related functions
+- update the bots intents with the Lambda ARN
+- And, deploy the slot types, intents and bots
 
-    ```bash
-    . lexBash.sh
-    ```
+```bash
+  . lexBash.sh
+```
+At this point you can check your lambda console as well as your lex console to see the conversations and intentions.
 
 - Finally, execute the following command to install your project package dependencies and run the application locally:
 
-    ```bash
-    amplify serve
-    ```
+```bash
+  amplify serve
+```
 
 - Access your ChatQLv2 app at http://localhost:3000. This time you can access AI capabilities of your bot
 
@@ -54,7 +54,7 @@ _The chatbots retrieve information online via API calls from Lambda to [The Movi
 
 1. In order to initiate or respond to a chatbot conversation, you need to start the message with either `@chuckbot` or `@moviebot` to trigger or respond to the specific bot, for example:
 
-   - _@chuckbot Give me a Chuck Norris fact_
+   - _@chuckbot Give me a Chuck Norris fact_ (wait a while until a response comes for the first time. This is due to lambda warm up and response from the above we sites are not as fast. If it does not work repeat the question)
    - _@moviebot Tell me about a movie_
 
 2. Each subsequent response needs to start with the bot handle (@chuckbot or @moviebot) so the app can detect the message is directed to Lex and not to the other user in the same conversation. Both users will be able to view Lex chatbot responses in real-time powered by GraphQL subscriptions.
