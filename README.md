@@ -1,29 +1,109 @@
-# Step 2 Create react app
+# Introduction
 
-At this stage we can create our fronte end. you can start with 
+At this point you have an usable serverless chat application with no AI features. The next steps are only needed to deploy and configure the integration with services that provide image recognition, text-to-speech, language translation, sentiment analysis as well as conversational chatbots.
 
-- create-react-app test
-- cp -rf ./test/* .; rm -rf test
-- npm start
+# Step 3 - AI and chatbots
 
-go change the src/App.js and make changes and see how the browser updates. Once you are happy with the fornt end code, replace it with the bot code.
+- Give the bash script execution and run it
 
-- cp -rf ./front-end/* .
-- npm install
-- npm start
 
-It will take some time to compile. If the load finishes and you see an empty browser then refresh the page. you should see a login window.
+   ```bash
+   chmod +x bashScript.sh
+   . bashScript.sh
+   ```
 
-## Login to chat screen
+This script will 
+- Look up the S3 bucket name created for user storage
+- Retrieve the API ID of your AppSync GraphQL endpoint
+- Retrieve the project's deployment bucket and stackname . It will be used for packaging and deployment with SAM
+- Set the region we are deploying resources to
 
-go to localhost:3000
+Now we need to deploy 3 Lambda functions (one for AppSync and two for Lex) and configure the AppSync Resolvers to use Lambda accordingly. First, we install the npm dependencies for each lambda function. We then package and deploy the changes with SAM.
 
-- Signing with your email and mobile number
-- If you do not receive confirmation login to your AWS console and in Cognito -> User Pools -> Users and groups, find yourself and click on the email and confirm user
-- in chatbot go back to your login page and login
-- create two users so you have someone to talk to on your local :)
-- Search for new users to start a conversation and test real-time/offline messaging as well as other features using different devices or browsers.
+    ```bash
+    cd ./backend/chuckbot-lambda; npm install; cd ../..
+    cd ./backend/moviebot-lambda; npm install; cd ../..
+    sam package --template-file ./backend/deploy.yaml --s3-bucket $DEPLOYMENT_BUCKET_NAME --output-template-file packaged.yaml
+    export STACK_NAME_AIML="$STACK_NAME-extra-aiml"
+    sam deploy --template-file ./packaged.yaml --stack-name $STACK_NAME_AIML --capabilities CAPABILITY_IAM --parameter-overrides appSyncAPI=$GRAPHQL_API_ID s3Bucket=$USER_FILES_BUCKET --region $AWS_REGION
+    ```
 
-WARNING at this stage dropdown from chatbot is not working since we have not deployed the AI backend yet. for that we need to go to the next step.
+    Wait for the stack to finish deploying. At this point login to your console and go to Lambda. See two lambda functions are installed for you.
+    
+    Now run the next script to  
+     - retrieve the functions' ARN.
+     - add permissions so Lex can invoke the chatbot related functions
+     - update the bots intents with the Lambda ARN
+     - And, deploy the slot types, intents and bots
 
-please checkout next step
+    ```bash
+    . lexBash.sh
+    ```
+
+- Finally, execute the following command to install your project package dependencies and run the application locally:
+
+    ```bash
+    amplify serve
+    ```
+
+- Access your ChatQLv2 app at http://localhost:3000. This time you can access AI capabilities of your bot
+
+### Interacting with Chatbots
+
+_The chatbots retrieve information online via API calls from Lambda to [The Movie Database (TMDb)](https://www.themoviedb.org/) (MovieBot, which is based on this [chatbot sample](https://github.com/aws-samples/aws-lex-convo-bot-example)) and [chucknorris.io ](https://api.chucknorris.io/) (ChuckBot)_
+
+1. In order to initiate or respond to a chatbot conversation, you need to start the message with either `@chuckbot` or `@moviebot` to trigger or respond to the specific bot, for example:
+
+   - _@chuckbot Give me a Chuck Norris fact_
+   - _@moviebot Tell me about a movie_
+
+2. Each subsequent response needs to start with the bot handle (@chuckbot or @moviebot) so the app can detect the message is directed to Lex and not to the other user in the same conversation. Both users will be able to view Lex chatbot responses in real-time powered by GraphQL subscriptions.
+3. Alternatively you can start a chatbot conversation from the message drop-down menu:
+
+   - Just selecting `ChuckBot` will display options for further interaction
+   - Send a message with a nothing but a movie name and selecting `MovieBot` subsequently will retrieve the details about the movie
+
+### Interacting with other AWS AI Services
+
+1. Click or select uploaded images to trigger Amazon Rekognition object, scene and celebrity detection. You can use the Chuck Norris image inside "images folder"
+2. From the drop-down menu, select LISTEN -> TEXT TO SPEECH to trigger Amazon Polly and listen to messages in different voices based on the message automatically detected source language (supported languages: English, Mandarin, Portuguese, French and Spanish).
+3. To perform entity and sentiment analysis on messages via Amazon Comprehend, select ANALYZE -> SENTIMENT from the drop-down menu.
+4. To translate the message select the desired language under TRANSLATE in the drop-down menu (supported languages: English, Mandarin, Portuguese, French and Spanish). In the translation pane, click on the microphone icon to listen to the translated message.
+
+## Building, Deploying and Publishing with the Amplify CLI
+
+1. Execute `amplify add hosting` from the project's root folder and follow the prompts to create an S3 bucket (DEV) and/or a CloudFront distribution (PROD).
+
+2. Build, deploy, upload and publish the application with a single command:
+
+   ```bash
+   amplify publish
+   ```
+
+3. If you are deploying a CloudFront distribution, be mindful it needs to be replicated across all points of presence globally and it might take up to 15 minutes to do so.
+
+4. Access your public ChatQL application using the S3 Website Endpoint URL or the CloudFront URL returned by the `amplify publish` command. Share the link with friends, sign up some users, and start creating conversations, uploading images, translating, executing text-to-speech in different languages, performing sentiment analysis and exchanging messages. Be mindful PWAs require SSL, in order to test PWA functionality access the CloudFront URL (HTTPS) from a mobile device and add the site to the mobile home screen.
+
+
+## Clean Up
+
+To clean up the project, you can simply delete the bots, delete the stack created by the SAM CLI:
+
+```bash
+aws lex-models delete-bot --name `jq -r .name backend/ChuckBot/bot.json` --region $AWS_REGION
+aws lex-models delete-bot --name `jq -r .name backend/MovieBot/bot.json` --region $AWS_REGION
+aws lex-models delete-intent --name `jq -r .name backend/ChuckBot/intent.json` --region $AWS_REGION
+aws lex-models delete-intent --name `jq -r .name backend/MovieBot/intent.json` --region $AWS_REGION
+aws lex-models delete-slot-type --name `jq -r .name backend/ChuckBot/slot-type.json` --region $AWS_REGION
+aws lex-models delete-slot-type --name `jq -r .name backend/MovieBot/slot-type.json` --region $AWS_REGION
+
+aws cloudformation delete-stack --stack-name $STACK_NAME_AIML --region $AWS_REGION
+```
+
+and use:
+
+```bash
+amplify delete
+```
+
+to delete the resources created by the Amplify CLI.
